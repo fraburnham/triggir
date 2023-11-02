@@ -19,12 +19,16 @@ defmodule TriggirWeb.RunOutputController do
               %{ctime: b_ctime} = File.stat!(Path.join(root_dir, b.url))
               # want most recent at the front of the list
               b_ctime <= a_ctime
-            end)
+            end),
+          breadcrumbs: [
+            %{url: "/#{params["trigger"]}", text: params["trigger"]},
+            %{url: "#", text: params["project"]}
+          ]
         )
 
       # TOOD: make an error page for this junk
       {:error, reason} ->
-        render(conn, :single_run, run_output: reason)
+        render(conn, :single_run, run_output: reason, breadcrumbs: [])
     end
   end
 
@@ -38,11 +42,12 @@ defmodule TriggirWeb.RunOutputController do
           links:
             Enum.map(projects, fn p ->
               %{url: "/#{params["trigger"]}/#{p}", text: "#{p}"}
-            end)
+            end),
+          breadcrumbs: [%{url: "#", text: params["trigger"]}]
         )
 
       {:error, reason} ->
-        render(conn, :single_run, run_output: reason)
+        render(conn, :single_run, run_output: reason, breadcrumbs: [])
     end
   end
 
@@ -51,10 +56,13 @@ defmodule TriggirWeb.RunOutputController do
     case Application.fetch_env!(:triggir, :runs_path)
          |> File.ls() do
       {:ok, triggers} ->
-        render(conn, :links_list, links: Enum.map(triggers, fn t -> %{url: "/#{t}", text: t} end))
+        render(conn, :links_list,
+          links: Enum.map(triggers, fn t -> %{url: "/#{t}", text: t} end),
+          breadcrumbs: []
+        )
 
       {:error, reason} ->
-        render(conn, :single_run, run_output: reason)
+        render(conn, :single_run, run_output: reason, breadcrumbs: [])
     end
   end
 
@@ -72,10 +80,20 @@ defmodule TriggirWeb.RunOutputController do
          |> File.read() do
       # TODO: handle errors
       {:ok, data} ->
-        render(conn, :single_run, run_output: data)
+        render(conn, :single_run,
+          run_output: data,
+          breadcrumbs: [
+            %{url: "/#{params["trigger"]}", text: params["trigger"]},
+            %{url: "/#{params["trigger"]}/#{params["project"]}", text: params["project"]},
+            %{url: "#", text: params["run"]}
+          ]
+        )
 
       {:error, cause} ->
-        render(conn, :single_run, run_output: "Failed to read run output: '#{cause}'")
+        render(conn, :single_run,
+          run_output: "Failed to read run output: '#{cause}'",
+          breadcrumbs: []
+        )
     end
   end
 end
