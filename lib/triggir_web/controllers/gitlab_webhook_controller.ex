@@ -66,14 +66,13 @@ defmodule TriggirWeb.GitlabWebhookController do
 
     workdir =
       Enum.reduce(
-        [base_dir, "workspaces", project, sha],
+        [base_dir, "gitlab", project, sha],
         fn path, acc ->
           Path.join(acc, path)
         end
       )
 
     setup_results = Taskir.main(build_context(request_body, workdir), "tasks/checkout.yaml")
-    IO.puts(inspect(setup_results))
 
     with :ok <- File.mkdir_p(workdir),
          true <- Enum.all?(setup_results, fn {status, _} -> status == :ok end) do
@@ -81,7 +80,7 @@ defmodule TriggirWeb.GitlabWebhookController do
         setup_results ++
           Taskir.main(
             build_context(request_body, workdir) |> Map.put("workdir", workdir),
-            "#{workdir}/.taskirci/tasks.yaml"
+            "#{workdir}/.triggir/tasks.yaml"
           ),
         workdir
       )

@@ -1,5 +1,7 @@
-<%= for url <- @links do %>
-  <div class="">
-    <a href={url}><%= url %></a>
-  </div>
-<% end %>
+<ul class="list-disc">
+  <%= for url <- @links do %>
+    <li class="p-1">
+      <a href={url}><%= url %></a>
+    </li>
+  <% end %>
+</ul>

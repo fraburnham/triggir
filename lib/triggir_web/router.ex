@@ -17,15 +17,10 @@ defmodule TriggirWeb.Router do
   scope "/", TriggirWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
-  end
-
-  scope "/gitlab", TriggirWeb do
-    pipe_through :browser
-
-    get "/", RunOutputController, :projects_list
-    get "/:project", RunOutputController, :shas_list
-    get "/:project/:sha", RunOutputController, :show
+    get "/", RunOutputController, :triggers_list
+    get "/:trigger", RunOutputController, :projects_list
+    get "/:trigger/:project", RunOutputController, :runs_list
+    get "/:trigger/:project/:run", RunOutputController, :show
   end
 
   scope "/api/gitlab", TriggirWeb do
