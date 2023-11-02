@@ -2,7 +2,6 @@ defmodule TriggirWeb.RunOutputController do
   use TriggirWeb, :controller
 
   def runs_list(conn, params) do
-    # TODO: sort by CTIME
     root_dir = Application.fetch_env!(:triggir, :runs_path)
 
     case Path.join(root_dir, params["trigger"])
@@ -11,10 +10,13 @@ defmodule TriggirWeb.RunOutputController do
       {:ok, runs} ->
         render(conn, :links_list,
           links:
-            Enum.map(runs, fn r -> "/#{params["trigger"]}/#{params["project"]}/#{r}" end)
+            runs
+            |> Stream.map(fn r ->
+              %{url: "/#{params["trigger"]}/#{params["project"]}/#{r}", text: "#{r}"}
+            end)
             |> Enum.sort(fn a, b ->
-              %{ctime: a_ctime} = File.stat!(Path.join(root_dir, a))
-              %{ctime: b_ctime} = File.stat!(Path.join(root_dir, b))
+              %{ctime: a_ctime} = File.stat!(Path.join(root_dir, a.url))
+              %{ctime: b_ctime} = File.stat!(Path.join(root_dir, b.url))
               # want most recent at the front of the list
               b_ctime <= a_ctime
             end)
@@ -33,7 +35,10 @@ defmodule TriggirWeb.RunOutputController do
          |> File.ls() do
       {:ok, projects} ->
         render(conn, :links_list,
-          links: Enum.map(projects, fn p -> "/#{params["trigger"]}/#{p}" end)
+          links:
+            Enum.map(projects, fn p ->
+              %{url: "/#{params["trigger"]}/#{p}", text: "#{p}"}
+            end)
         )
 
       {:error, reason} ->
@@ -46,7 +51,7 @@ defmodule TriggirWeb.RunOutputController do
     case Application.fetch_env!(:triggir, :runs_path)
          |> File.ls() do
       {:ok, triggers} ->
-        render(conn, :links_list, links: Enum.map(triggers, fn t -> "/#{t}" end))
+        render(conn, :links_list, links: Enum.map(triggers, fn t -> %{url: "/#{t}", text: t} end))
 
       {:error, reason} ->
         render(conn, :single_run, run_output: reason)

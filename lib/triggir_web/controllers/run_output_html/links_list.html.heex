@@ -1,7 +1,7 @@
 <ul class="list-disc">
-  <%= for url <- @links do %>
+  <%= for link <- @links do %>
     <li class="p-1">
-      <a href={url}><%= url %></a>
+      <a href={link.url}><%= link.text %></a>
     </li>
   <% end %>
 </ul>
