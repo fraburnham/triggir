@@ -8,22 +8,6 @@
     git fetch
     popd
 
-    # This workdir logic should move to the elixir code, I think...
-    if [[ -d "$WORKDIR" ]]; then
-      project_dir="$(dirname "$WORKDIR")"
-      if [[ -n "$(ls "$project_dir" | grep "$(basename "$WORKDIR")-.*")" ]]; then
-        last_num="$(ls "$project_dir" \
-                      | grep "$(basename "$WORKDIR")-.*" \
-                      | awk -F- '{ print $2 }' \
-                      | sort -r \
-                      | xargs bash -c 'echo "$1"' --)"
-      else
-        last_num=0
-      fi
-
-      mv "$WORKDIR" "$WORKDIR-$(( last_num + 1 ))"
-    fi
-
     git clone "$REPOSITORY_NAME" "$WORKDIR"
     pushd "$WORKDIR"
     git checkout "$CHECKOUT_SHA"
