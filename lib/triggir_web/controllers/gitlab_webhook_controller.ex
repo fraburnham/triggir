@@ -98,26 +98,25 @@ defmodule TriggirWeb.GitlabWebhookController do
   end
 
   def run(conn, request_body) do
-    workdir =
-      get_workdir("gitlab", request_body["repository"]["name"], request_body["checkout_sha"])
+    spawn(fn ->
+      workdir =
+        get_workdir("gitlab", request_body["repository"]["name"], request_body["checkout_sha"])
 
-    setup_results = Taskir.main(build_context(request_body, workdir), "tasks/checkout.yaml")
+      setup_results = Taskir.main(build_context(request_body, workdir), "tasks/checkout.yaml")
 
-    with :ok <- File.mkdir_p(workdir),
-         true <- Enum.all?(setup_results, fn {status, _} -> status == :ok end) do
-      store_results(
-        setup_results ++
-          Taskir.main(
-            build_context(request_body, workdir) |> Map.put("workdir", workdir),
-            "#{workdir}/.triggir/tasks.yaml"
-          ),
-        workdir
-      )
+      with :ok <- File.mkdir_p(workdir),
+           true <- Enum.all?(setup_results, fn {status, _} -> status == :ok end) do
+        store_results(
+          setup_results ++
+            Taskir.main(
+              build_context(request_body, workdir) |> Map.put("workdir", workdir),
+              "#{workdir}/.triggir/tasks.yaml"
+            ),
+          workdir
+        )
+      end
+    end)
 
-      json(conn, %{status: "ok"})
-    else
-      _ ->
-        json(conn, %{status: "failed"})
-    end
+    json(conn, %{status: "ok"})
   end
 end
