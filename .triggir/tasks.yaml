@@ -1,0 +1,8 @@
+---
+- type: bash
+  body: |
+    [[ "$REF" != "refs/heads/main" ]] && exit 0
+
+    git remote add github git@github.com:fraburnham/triggir
+    git push github "$CHECKOUT_SHA":refs/heads/main
+    git push github --tags
