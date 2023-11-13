@@ -1,46 +1,6 @@
 defmodule TriggirWeb.GitlabWebhookController do
   use TriggirWeb, :controller
-
-  defp build_key(k, prefix) do
-    if(prefix != "", do: "#{prefix}_#{k}", else: k)
-    |> String.upcase()
-  end
-
-  defp envify_map(m) do
-    Enum.reduce(
-      m,
-      [],
-      fn el, acc -> acc ++ envify_map(el, "") end
-    )
-  end
-
-  defp envify_map({k, v}, prefix) when is_list(v) do
-    case Jason.encode(v) do
-      {:ok, v} ->
-        envify_map({k, v}, prefix)
-
-      {:error, _} ->
-        []
-    end
-  end
-
-  defp envify_map({k, v}, prefix) when is_map(v) do
-    Enum.reduce(
-      v,
-      [],
-      fn v, acc ->
-        acc ++ envify_map(v, build_key(k, prefix))
-      end
-    )
-  end
-
-  defp envify_map({k, v}, prefix) do
-    [{build_key(k, prefix), "#{v}"}]
-  end
-
-  defp build_context(request_body, workdir) do
-    %{"env" => envify_map(request_body |> Map.put("WORKDIR", workdir))}
-  end
+  import TriggerWeb.Webhook
 
   def get_run_numbers(paths, sha) do
     paths
@@ -82,34 +42,28 @@ defmodule TriggirWeb.GitlabWebhookController do
     "#{workdir_base}-#{next_num}"
   end
 
-  def store_results(results, workdir) do
-    # This is likely to be a bad pattern for large outputs
-    File.write!(
-      Path.join(workdir, ".taskir-output"),
-      Enum.reduce(
-        results,
-        "",
-        fn result, acc ->
-          {_, data} = result
-          acc <> "\n----\n" <> data
-        end
-      )
-    )
-  end
-
   def run(conn, request_body) do
     spawn(fn ->
       workdir =
-        get_workdir("gitlab", request_body["repository"]["name"], request_body["checkout_sha"])
+        get_workdir(
+          "gitlab",
+          request_body["repository"]["name"],
+          request_body["checkout_sha"]
+        )
 
-      setup_results = Taskir.main(build_context(request_body, workdir), "tasks/checkout.yaml")
+      setup_results =
+        Taskir.main(
+          build_context(request_body, workdir),
+          "tasks/checkout.yaml"
+        )
 
       with :ok <- File.mkdir_p(workdir),
            true <- Enum.all?(setup_results, fn {status, _} -> status == :ok end) do
         store_results(
           setup_results ++
             Taskir.main(
-              build_context(request_body, workdir) |> Map.put("workdir", workdir),
+              build_context(request_body, workdir)
+              |> Map.put("workdir", workdir),
               "#{workdir}/.triggir/tasks.yaml"
             ),
           workdir
