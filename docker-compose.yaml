@@ -1,5 +1,36 @@
 version: '3.7'
+
 services:
+  triggir:
+    build: .
+    entrypoint: ["sh", "-c", "(telegraf -config /etc/telegraf/telegraf.conf &); mix phx.server"]
+    ports:
+      - "4000:4000"
+    volumes:
+      - "$PWD:/app"
+
+  chronograf:
+    image: chronograf:1.10-alpine
+    restart: always
+    entrypoint: ["chronograf", "--influxdb-url=http://influx:8086", "--influxdb-org=triggir", "--influxdb-token=super-secret-auth-token"]
+    ports:
+      - "8888:8888"
+    volumes:
+      - chronografdata:/var/lib/chronograf
+
+  influx:
+    image: influxdb:2.7-alpine
+    restart: always
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=influx
+      - DOCKER_INFLUXDB_INIT_PASSWORD=topsecret
+      - DOCKER_INFLUXDB_INIT_ORG=triggir
+      - DOCKER_INFLUXDB_INIT_BUCKET=phoenix
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=super-secret-auth-token
+    volumes:
+      - influxdata:/var/lib/influxdb2
+
   postgres:
     image: postgres:16
     restart: always
@@ -11,6 +42,11 @@ services:
         max-size: 10m
         max-file: "3"
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes: 
-      - ./mount/postgres-data:/var/lib/postgresql/data
+      - postgresdata:/var/lib/postgresql/data
+
+volumes:
+  chronografdata:
+  influxdata:
+  postgresdata:

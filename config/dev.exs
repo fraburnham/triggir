@@ -4,7 +4,7 @@ import Config
 config :triggir, Triggir.Repo,
   username: "postgres",
   password: "postgres",
-  hostname: "localhost",
+  hostname: "postgres",
   database: "triggir_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
