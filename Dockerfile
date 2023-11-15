@@ -1,8 +1,6 @@
 FROM elixir:1.15.7-alpine
 
-# create lower level user and switch off before building?
-
-RUN apk update && apk add telegraf git
+RUN apk update && apk add telegraf git bash
 
 RUN mkdir -p /etc/telegraf
 COPY telegraf.conf /etc/telegraf/telegraf.conf
