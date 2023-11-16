@@ -43,7 +43,7 @@ defmodule TriggirWeb.GitlabWebhookController do
   end
 
   def run(conn, request_body) do
-    spawn(fn ->
+    Triggir.TaskManager.run(fn ->
       workdir =
         get_workdir(
           "gitlab",

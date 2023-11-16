@@ -16,6 +16,7 @@ defmodule Triggir.Application do
       {Finch, name: Triggir.Finch},
       # Start a worker by calling: Triggir.Worker.start_link(arg)
       # {Triggir.Worker, arg},
+      {Triggir.TaskManager, %{max_workers: 20}},
       # Start to serve requests, typically the last entry
       TriggirWeb.Endpoint
     ]
