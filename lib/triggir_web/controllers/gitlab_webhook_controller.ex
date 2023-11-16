@@ -58,7 +58,8 @@ defmodule TriggirWeb.GitlabWebhookController do
         )
 
       with :ok <- File.mkdir_p(workdir),
-           true <- Enum.all?(setup_results, fn {status, _} -> status == :ok end) do
+           {:setup, true} <-
+             {:setup, Enum.all?(setup_results, fn {status, _} -> status == :ok end)} do
         store_results(
           setup_results ++
             Taskir.main(
@@ -68,6 +69,9 @@ defmodule TriggirWeb.GitlabWebhookController do
             ),
           workdir
         )
+      else
+        # Dialyzer is wrong about this line. It can be reached in practice. TODO: figure out how to fix or ignore
+        {:setup, _} -> store_results(setup_results, workdir)
       end
     end)
 
