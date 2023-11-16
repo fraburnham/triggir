@@ -20,6 +20,17 @@ defmodule TriggirWeb.Telemetry do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  def route_translator(%{route: route, path_params: path_params} = data) do
+    data
+    |> Map.put(
+      :route,
+      route
+      |> String.replace(":trigger", path_params["trigger"] || "")
+      |> String.replace(":project", path_params["project"] || "")
+      |> String.replace(":run", path_params["run"] || "")
+    )
+  end
+
   def metrics do
     [
       # Phoenix Metrics
@@ -31,14 +42,17 @@ defmodule TriggirWeb.Telemetry do
       ),
       summary("phoenix.router_dispatch.start.system_time",
         tags: [:route],
+        tag_values: &route_translator/1,
         unit: {:native, :millisecond}
       ),
       summary("phoenix.router_dispatch.exception.duration",
         tags: [:route],
+        tag_values: &route_translator/1,
         unit: {:native, :millisecond}
       ),
       summary("phoenix.router_dispatch.stop.duration",
         tags: [:route],
+        tag_values: &route_translator/1,
         unit: {:native, :millisecond}
       ),
       summary("phoenix.socket_connected.duration",
