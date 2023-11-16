@@ -23,11 +23,11 @@ defmodule TriggirWeb.Telemetry do
   def route_translator(%{route: route, path_params: path_params} = data) do
     data
     |> Map.put(
-      :route,
+      :formatted_route,
       route
       |> String.replace(":trigger", path_params["trigger"] || "")
-      |> String.replace(":project", path_params["project"] || "")
-      |> String.replace(":run", path_params["run"] || "")
+      |> String.replace(":project", "project")
+      |> String.replace(":run", "run")
     )
   end
 
@@ -41,17 +41,17 @@ defmodule TriggirWeb.Telemetry do
         unit: {:native, :millisecond}
       ),
       summary("phoenix.router_dispatch.start.system_time",
-        tags: [:route],
+        tags: [:formatted_route],
         tag_values: &route_translator/1,
         unit: {:native, :millisecond}
       ),
       summary("phoenix.router_dispatch.exception.duration",
-        tags: [:route],
+        tags: [:formatted_route],
         tag_values: &route_translator/1,
         unit: {:native, :millisecond}
       ),
       summary("phoenix.router_dispatch.stop.duration",
-        tags: [:route],
+        tags: [:formatted_route],
         tag_values: &route_translator/1,
         unit: {:native, :millisecond}
       ),
