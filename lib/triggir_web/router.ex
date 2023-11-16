@@ -14,15 +14,6 @@ defmodule TriggirWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", TriggirWeb do
-    pipe_through :browser
-
-    get "/", RunOutputController, :triggers_list
-    get "/:trigger", RunOutputController, :projects_list
-    get "/:trigger/:project", RunOutputController, :runs_list
-    get "/:trigger/:project/:run", RunOutputController, :show
-  end
-
   scope "/api/gitlab", TriggirWeb do
     pipe_through :api
 
@@ -44,5 +35,14 @@ defmodule TriggirWeb.Router do
       live_dashboard "/dashboard", metrics: TriggirWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+  end
+
+  scope "/", TriggirWeb do
+    pipe_through :browser
+
+    get "/", RunOutputController, :triggers_list
+    get "/:trigger", RunOutputController, :projects_list
+    get "/:trigger/:project", RunOutputController, :runs_list
+    get "/:trigger/:project/:run", RunOutputController, :show
   end
 end
