@@ -34,28 +34,15 @@ runOutputRoot: "/run-output"
 secrets:
   # sshPrivateKey Use --set to pass this value
   sshPrivateKey:
-  # knownHosts Use --set to pass this value
-  knownHosts:
 
 ### Subcharts ###
 docker-in-docker:
   secureDocker: false
 
-postgresql:
-  auth:
-    postgresPassword: "${POSTGRES_ADMIN_PASSWORD}"
-    username: "${POSTGRES_USERNAME}"
-    password: "${POSTGRES_PASSWORD}"
-    database: "${POSTGRES_DATABASE}"
-
 influxdb:
   image:
     tag: "2.7-alpine"
   env:
-    - name: DOCKER_INFLUXDB_INIT_PASSWORD
-      value: "${INFLUX_PASSWORD}"
-    - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
-      value: "${INFLUX_TOKEN}"
     - name: DOCKER_INFLUXDB_INIT_MODE
       value: setup
     - name: DOCKER_INFLUXDB_INIT_USERNAME
