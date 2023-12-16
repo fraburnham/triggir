@@ -34,6 +34,7 @@ runOutputRoot: "/run-output"
 secrets:
   # sshPrivateKey Use --set to pass this value
   sshPrivateKey:
+  knownHosts:
 
 ### Subcharts ###
 docker-in-docker:
@@ -43,6 +44,11 @@ influxdb:
   image:
     tag: "2.7-alpine"
   env:
+    # NOTE: use the relative .Values path for the subchart
+    - name: DOCKER_INFLUXDB_INIT_PASSWORD
+      value: "{{ .Values.secret.password }}"
+    - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+      value: "{{ .Values.secret.token }}"
     - name: DOCKER_INFLUXDB_INIT_MODE
       value: setup
     - name: DOCKER_INFLUXDB_INIT_USERNAME

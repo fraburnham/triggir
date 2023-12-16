@@ -90,7 +90,7 @@ spec:
         {{- if or .Values.env .Values.setDefaultUser.enabled }}
         env:
         {{- if .Values.env }}
-{{ toYaml .Values.env | indent 10 }}
+{{ tpl (toYaml .Values.env) . | indent 10 }}
         {{- end }}
         {{- if .Values.enterprise.enabled }}
           - name: INFLUXDB_HOSTNAME # Values.env's HOSTNAME isn't fundamentally different from $HOSTNAME, but this way weg get a distinguished name at runtime.

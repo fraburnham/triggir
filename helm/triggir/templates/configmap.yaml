@@ -9,4 +9,3 @@ data:
   {{- if .Values.environment }}
 {{ .Values.environment | toYaml | indent 2 }}
   {{- end }}
-
