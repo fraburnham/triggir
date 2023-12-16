@@ -15,13 +15,15 @@ if [[ -d "/setup" ]]; then
 fi
 
 if [[ -z "${INFLUX_URL:-}" ]] && [[ -n "$TRIGGIR_INFLUXDB_SERVICE_HOST" ]] && [[ -n "$TRIGGIR_INFLUXDB_SERVICE_PORT" ]]; then
-    export INFLUX_URL="http://$TRIGGIR_INFLUXDB_SERVICE_HOST:$TRIGGIR_INFLUXDB_SERVICE_PORT/"
+    INFLUX_URL="http://$TRIGGIR_INFLUXDB_SERVICE_HOST:$TRIGGIR_INFLUXDB_SERVICE_PORT/"
+    export INFLUX_URL
 fi
 
 # TODO: These variables will break when the release name changes. Make that better. Maybe an init container that runs a command?
 # maybe search the env vars and see which ones say POSTGRESQL_SERVICE_HOST
 if [[ -z "${DATABASE_URL:-}" ]] && [[ -n "$TRIGGIR_POSTGRESQL_SERVICE_HOST" ]]; then
-    export DATABASE_URL="ecto://$PG_USER:$PG_PASS@$TRIGGIR_POSTGRESQL_SERVICE_HOST/$PG_DB"
+    DATABASE_URL="ecto://$POSTGRES_USERNAME:$POSTGRES_PASSWORD@$TRIGGIR_POSTGRESQL_SERVICE_HOST/$POSTGRES_DATABASE"
+    export DATABASE_URL
 fi
 
 telegraf -config /etc/telegraf/telegraf.conf &

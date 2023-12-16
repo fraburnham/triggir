@@ -18,6 +18,13 @@ EXPECTED_VARS=(
 	  | uniq)
 )
 
+if [[ -n "$CHECKOUT_SHA" ]]; then
+    IMAGE_TAG="$CHECKOUT_SHA"
+fi
+
+IMAGE_TAG="${IMAGE_TAG:-latest}"
+
+
 MISSING=false
 for var in "${EXPECTED_VARS[@]}"; do
     set +u
