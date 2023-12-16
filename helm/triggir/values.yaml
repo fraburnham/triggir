@@ -33,9 +33,9 @@ runOutputRoot: "/run-output"
 
 secrets:
   # sshPrivateKey Use --set to pass this value
+  sshPrivateKey:
   # knownHosts Use --set to pass this value
-  secretKeyBase: "${SECRET_KEY_BASE}"
-  influxToken: "${INFLUX_TOKEN}"
+  knownHosts:
 
 ### Subcharts ###
 docker-in-docker:
