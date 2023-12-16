@@ -6,3 +6,10 @@
     git remote add github git@github.com:fraburnham/triggir
     git push github "$CHECKOUT_SHA":refs/heads/main
     git push github --tags
+---
+- type: bash
+  body: |
+    set -euo pipefail
+
+    doas docker build -t "$DOCKER_REGISTRY/triggir:$CHECKOUT_SHA" .
+    doas docker push "$DOCKER_REGISTRY/triggir:$CHECKOUT_SHA"
