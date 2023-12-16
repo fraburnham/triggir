@@ -65,6 +65,9 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  config :triggir,
+    runs_path: System.get_env("RUN_OUTPUT_ROOT")
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key
