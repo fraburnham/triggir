@@ -33,3 +33,5 @@ for var in "${EXPECTED_VARS[@]}"; do
 done
 
 $MISSING && exit 1
+
+echo "All variables are set!"
