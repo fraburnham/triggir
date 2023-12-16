@@ -7,9 +7,7 @@
     git push github "$CHECKOUT_SHA":refs/heads/main
     git push github --tags
 ---
+# - type: bash
+#   script: .triggir/scripts/docker-build.sh
 - type: bash
-  body: |
-    set -euo pipefail
-
-    doas docker build -t "$DOCKER_REGISTRY/triggir:$CHECKOUT_SHA" .
-    doas docker push "$DOCKER_REGISTRY/triggir:$CHECKOUT_SHA"
+  script: .triggir/scripts/detect-env-needed-for-values.sh
