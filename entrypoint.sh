@@ -11,6 +11,7 @@ fi
 if [[ -d "/setup" ]]; then
     mkdir -p $HOME/.ssh
     cp /setup/.ssh/* $HOME/.ssh/
+    chmod 0400 $HOME/.ssh/id_rsa
 fi
 
 if [[ -z "${INFLUX_URL:-}" ]] && [[ -n "$TRIGGIR_INFLUXDB_SERVICE_HOST" ]] && [[ -n "$TRIGGIR_INFLUXDB_SERVICE_PORT" ]]; then
