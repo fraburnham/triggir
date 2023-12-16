@@ -2,14 +2,19 @@ version: '3.7'
 
 services:
   triggir:
-    build: .
-    entrypoint: ["sh", "-c", "(telegraf -config /etc/telegraf/telegraf.conf &); mix phx.server"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
     env_file: .env
+    environment:
+      INFLUX_URL: "http://influx:8086"
     ports:
       - "4000:4000"
     volumes:
       - "$PWD:/app"
       - "$HOME/.ssh:/home/user/.ssh"
+      - "/var/run/docker.sock:/var/run/docker.sock"
 
   chronograf:
     image: chronograf:1.10-alpine
