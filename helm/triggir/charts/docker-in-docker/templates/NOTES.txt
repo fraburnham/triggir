@@ -1,0 +1,21 @@
+
+Docker-in-Docker is deployed!
+
+To connect to the Docker daemon:
+{{- if .Values.secureDocker }}
+  1. Set the following environment variables for your Docker client:
+       DOCKER_HOST=tcp://{{ include "dind.fullname" . }}:{{ include "dind.servicePort" . }}
+       DOCKER_TLS_CERTDIR=/certs
+       DOCKER_CERT_PATH=/certs/client
+       DOCKER_TLS_VERIFY=1
+  2. Download the kubernetes secret '{{ include "dind.fullname" . }}-cert-client' and create the
+     following files for the Docker client:
+       'ca.crt' -> /certs/client/ca.pem
+       'tls.crt' -> /certs/client/cert.pem
+       'tls.key' -> /certs/client/key.pem
+  3. Use your Docker client as normal. It should automatically authenticate via TLS.
+{{- else }}
+  1. Set the following environment variables for your Docker client:
+       DOCKER_HOST=tcp://{{ include "dind.fullname" . }}:{{ include "dind.servicePort" . }}
+  3. Use your Docker client as normal.
+{{- end }}

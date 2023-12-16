@@ -1,0 +1,68 @@
+# Env vars in here should be replaced using envsubst before rendering the chart
+replicaCount: 1
+autoscaling:
+  enabled: false
+
+image:
+  repository: "${DOCKER_REGISTRY}/triggir"
+  pullPolicy: Always
+  tag: "${IMAGE_TAG}"
+
+serviceAccount:
+  create: true
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  containerPort: 4000
+
+ingress:
+  enabled: true
+  hosts:
+    - host: "${HOSTNAME}"
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+# TODO: persistent volume setup
+runOutputRoot: "/run-output"
+
+secrets:
+  # sshPrivateKey Use --set to pass this value
+  # knownHosts Use --set to pass this value
+  secretKeyBase: "${SECRET_KEY_BASE}"
+  influxToken: "${INFLUX_TOKEN}"
+
+### Subcharts ###
+docker-in-docker:
+  secureDocker: false
+
+postgresql:
+  auth:
+    postgresPassword: "${POSTGRES_ADMIN_PASSWORD}"
+    username: "${POSTGRES_USERNAME}"
+    password: "${POSTGRES_PASSWORD}"
+    database: "${POSTGRES_DATABASE}"
+
+influxdb:
+  image:
+    tag: "2.7-alpine"
+  env:
+    - name: DOCKER_INFLUXDB_INIT_PASSWORD
+      value: "${INFLUX_PASSWORD}"
+    - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+      value: "${INFLUX_TOKEN}"
+    - name: DOCKER_INFLUXDB_INIT_MODE
+      value: setup
+    - name: DOCKER_INFLUXDB_INIT_USERNAME
+      value: influx
+    - name: DOCKER_INFLUXDB_INIT_ORG
+      value: triggir
+    - name: DOCKER_INFLUXDB_INIT_BUCKET
+      value: phoenix
+    - name: DOCKER_INFLUXDB_INIT_RETENTION
+      value: 4w

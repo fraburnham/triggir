@@ -1,0 +1,17 @@
+{{- if .Values.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dind.fullname" . }}
+  labels:
+    {{- include "dind.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ include "dind.servicePort" . }}
+      targetPort: {{ include "dind.dockerPort" . }}
+      protocol: TCP
+      name: docker
+  selector:
+    {{- include "dind.selectorLabels" . | nindent 4 }}
+{{- end }}

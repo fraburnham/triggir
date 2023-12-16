@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "triggir.fullname" . }}
+  labels:
+    {{- include "triggir.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "triggir.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "triggir.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "triggir.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: run-output-volume
+          emptyDir:
+            sizeLimit: 10G
+        - name: ssh-key
+          secret:
+            secretName: "{{ .Release.Name }}-git-priv-ssh-key"
+            items:
+              - key: ssh-privatekey
+                path: id_rsa
+              - key: known_hosts
+                path: known_hosts
+        {{- if (get (get .Values "docker-in-docker") "secureDocker") }}
+        - name: dind-certs
+          secret:
+            secretName: triggir-docker-in-docker-cert-client
+            items:
+              - key: ca.crt
+                path: client/ca.pem
+              - key: tls.crt
+                path: client/cert.pem
+              - key: tls.key
+                path: client/key.pem
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: triggir-config
+            # TODO!: be able to add arbitrary secrets as refs here
+            - secretRef:
+                name: "{{ .Release.Name }}-secret-config"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: {{ .Values.runOutputRoot }}
+              name: run-output-volume
+            - mountPath: "/setup/.ssh"
+              name: ssh-key
+            {{- if (get (get .Values "docker-in-docker") "secureDocker") }}
+            - mountPath: /certs
+              name: dind-certs
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
