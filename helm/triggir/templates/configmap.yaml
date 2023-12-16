@@ -6,4 +6,7 @@ data:
   MIX_ENV: "prod"
   RUN_OUTPUT_ROOT: "{{ .Values.runOutputRoot }}"
   PHX_SERVER: "true"
-  # TODO!: allow arbitrary env to be added here!
+  {{- if .Values.environment }}
+{{ .Values.environment | toYaml | indent 2 }}
+  {{- end }}
+
