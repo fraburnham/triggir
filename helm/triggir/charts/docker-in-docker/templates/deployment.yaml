@@ -82,6 +82,12 @@ spec:
           command:
             - "dockerd"
           args:
+            {{- if .Values.insecureRegistries }}
+            {{- range .Values.insecureRegistries }}
+            - "--insecure-registry"
+            - "{{ . }}"
+            {{- end }}
+            {{- end }}
             - "--host"
             - "tcp://0.0.0.0:2375"
           {{- end }}

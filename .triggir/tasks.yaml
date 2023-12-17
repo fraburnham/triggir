@@ -7,7 +7,7 @@
     git push github "$CHECKOUT_SHA":refs/heads/main
     git push github --tags
 ---
-# - type: bash
-#   script: .triggir/scripts/docker-build.sh
+- type: bash
+  script: .triggir/scripts/docker-build.sh
 - type: bash
   script: .triggir/scripts/detect-env-needed-for-values.sh
