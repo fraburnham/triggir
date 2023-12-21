@@ -34,6 +34,7 @@ runOutputRoot: "/run-output"
 secrets:
   # sshPrivateKey Use --set to pass this value
   sshPrivateKey:
+  # knownHosts Use --set to pass this value
   knownHosts:
 
 ### Subcharts ###
