@@ -2,7 +2,7 @@
 FROM docker:dind as core
 # https://hexdocs.pm/phoenix/releases.html#containers looks like a nice starting point
 
-RUN apk add --update --no-cache elixir telegraf git bash openssh doas gettext
+RUN apk add --update --no-cache elixir telegraf git bash doas gettext curl jq yq helm
 
 RUN mkdir -p /etc/telegraf
 COPY telegraf.conf /etc/telegraf/telegraf.conf
